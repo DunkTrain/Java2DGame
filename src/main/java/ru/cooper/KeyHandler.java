@@ -4,69 +4,64 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 /**
- * Handles keyboard input for the game.
- * Implements KeyListener to capture key events.
+ * Обработчик нажатий клавиш.
+ * Реализует интерфейс {@link KeyListener} для отслеживания ввода с клавиатуры.
+ * Управляет флагами движения персонажа по направлениям: вверх, вниз, влево, вправо.
  */
 public class KeyHandler implements KeyListener {
 
-    public boolean upPressed, downPressed, leftPressed, rightPressed;
+    /** Флаг движения вверх (W) */
+    public boolean upPressed;
+
+    /** Флаг движения вниз (S) */
+    public boolean downPressed;
+
+    /** Флаг движения влево (A) */
+    public boolean leftPressed;
+
+    /** Флаг движения вправо (D) */
+    public boolean rightPressed;
 
     /**
-     * Invoked when a key has been typed.
-     * Not used in this implementation.
+     * Вызывается при вводе символа с клавиатуры.
+     * В данной реализации не используется.
      *
-     * @param e The key event
+     * @param e событие нажатия клавиши
      */
     @Override
     public void keyTyped(KeyEvent e) {
-        // Not used
+        // Не используется
     }
 
     /**
-     * Invoked when a key has been pressed.
-     * Sets the corresponding direction flag to true.
+     * Вызывается при нажатии клавиши.
+     * Устанавливает флаги движения в соответствующее направление.
      *
-     * @param e The key event
+     * @param e событие нажатия клавиши
      */
     @Override
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
 
-        if (code == KeyEvent.VK_W) {
-            upPressed = true;
-        }
-        if (code == KeyEvent.VK_S) {
-            downPressed = true;
-        }
-        if (code == KeyEvent.VK_A) {
-            leftPressed = true;
-        }
-        if (code == KeyEvent.VK_D) {
-            rightPressed = true;
-        }
+        if (code == KeyEvent.VK_W) upPressed = true;
+        if (code == KeyEvent.VK_S) downPressed = true;
+        if (code == KeyEvent.VK_A) leftPressed = true;
+        if (code == KeyEvent.VK_D) rightPressed = true;
     }
 
     /**
-     * Invoked when a key has been released.
-     * Sets the corresponding direction flag to false.
+     * Вызывается при отпускании клавиши.
+     * Сбрасывает флаги движения.
      *
-     * @param e The key event
+     * @param e событие отпускания клавиши
      */
     @Override
     public void keyReleased(KeyEvent e) {
         int code = e.getKeyCode();
 
-        if (code == KeyEvent.VK_W) {
-            upPressed = false;
-        }
-        if (code == KeyEvent.VK_S) {
-            downPressed = false;
-        }
-        if (code == KeyEvent.VK_A) {
-            leftPressed = false;
-        }
-        if (code == KeyEvent.VK_D) {
-            rightPressed = false;
-        }
+        if (code == KeyEvent.VK_W) upPressed = false;
+        if (code == KeyEvent.VK_S) downPressed = false;
+        if (code == KeyEvent.VK_A) leftPressed = false;
+        if (code == KeyEvent.VK_D) rightPressed = false;
     }
 }

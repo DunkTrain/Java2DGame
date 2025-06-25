@@ -1,5 +1,7 @@
 package ru.cooper;
 
+import ru.cooper.entity.Player;
+
 import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -7,54 +9,51 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 /**
- * The main game panel that handles rendering and game logic.
- * Implements Runnable to manage the game loop in a separate thread.
+ * Основная панель игры, отвечающая за отрисовку и игровой цикл.
+ * Реализует {@link Runnable} для выполнения цикла игры в отдельном потоке.
  */
 public class GamePanel extends JPanel implements Runnable {
 
-    // SCREEN SETTING
-    /** Original size of a tile in pixels */
-    final int originalTileSize = 16; // 16x16 title
+    // Настройки экрана
+    /** Исходный размер тайла в пикселях (до масштабирования) */
+    private final int originalTileSize = 16;
 
-    /** Scale factor for rendering on higher resolution displays */
-    final int scale = 3;
+    /** Коэффициент масштабирования тайлов */
+    private final int scale = 3;
 
-    /** Actual tile size used for rendering (originalTileSize * scale) */
-    final int tileSize = originalTileSize * scale; // 48x48 tile
+    /** Размер тайла с учётом масштабирования */
+    public final int tileSize = originalTileSize * scale;
 
-    /** Number of columns in the game screen */
-    final int maxScreenCol = 16;
+    /** Количество колонок на экране */
+    private final int maxScreenCol = 16;
 
-    /** Number of rows in the game screen */
-    final int maxScreenRow = 12;
+    /** Количество строк на экране */
+    private final int maxScreenRow = 12;
 
-    /** Total width of the game screen in pixels */
-    final int screenWidth = tileSize * maxScreenCol; // 768 pixels
+    /** Общая ширина экрана в пикселях */
+    private final int screenWidth = tileSize * maxScreenCol;
 
-    /** Total height of the game screen in pixels */
-    final int screenHeight = tileSize * maxScreenRow; // 576 pixels
+    /** Общая высота экрана в пикселях */
+    private final int screenHeight = tileSize * maxScreenRow;
 
-    // Target FPS
-    int fps = 60;
+    /** Целевая частота кадров */
+    private final int fps = 60;
 
-    KeyHandler keyH = new KeyHandler();
-    Thread gameThread;
+    private final KeyHandler keyH = new KeyHandler();
+    private final Player player = new Player(this, keyH);
+    private Thread gameThread;
 
-    // Set player's default position
-    int playerX = 100;
-    int playerY = 100;
-    int playerSpeed = 4;
-
-    // Game Loop variables
-    double delta = 0;
-    long lastTime;
-    long currentTime;
-    long timer = 0;
-    int drawCount = 0;
-    double drawInterval;
+    // Переменные цикла игры
+    private double delta = 0;
+    private long lastTime;
+    private long currentTime;
+    private long timer = 0;
+    private int drawCount = 0;
+    private double drawInterval;
 
     /**
-     * Initializes the game panel with proper settings.
+     * Конструктор инициализирует параметры панели:
+     * размер, фон, буферизацию и обработчик ввода.
      */
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -65,30 +64,28 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     /**
-     * Starts the game thread and initializes timing variables.
+     * Запускает игровой поток и инициализирует расчёт времени кадра.
      */
     public void startGameThread() {
         gameThread = new Thread(this);
         lastTime = System.nanoTime();
-        drawInterval = (double) 1_000_000_000 / fps;
+        drawInterval = 1_000_000_000.0 / fps;
         gameThread.start();
     }
 
     /**
-     * The main game loop. Updates game state and renders at the specified FPS.
-     * Uses delta timing to ensure consistent game speed regardless of frame rate.
+     * Игровой цикл: обновляет состояние и перерисовывает экран с заданной частотой кадров.
+     * Использует дельта-время для обеспечения стабильной скорости игры.
      */
     @Override
     public void run() {
         while (gameThread != null) {
             currentTime = System.nanoTime();
 
-            // Calculate time passed and accumulate delta
             delta += (currentTime - lastTime) / drawInterval;
             timer += (currentTime - lastTime);
             lastTime = currentTime;
 
-            // Update and render when a full frame interval has passed
             if (delta >= 1) {
                 update();
                 repaint();
@@ -96,7 +93,6 @@ public class GamePanel extends JPanel implements Runnable {
                 drawCount++;
             }
 
-            // Display FPS once per second
             if (timer >= 1_000_000_000) {
                 System.out.println("FPS: " + drawCount);
                 drawCount = 0;
@@ -106,33 +102,22 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     /**
-     * Updates the game state based on user input.
-     * Called every frame when delta time accumulates to 1.
+     * Обновляет игровое состояние. Вызывается каждый кадр.
      */
     public void update() {
-        if (keyH.upPressed) {
-            playerY -= playerSpeed;
-        } else if (keyH.downPressed) {
-            playerY += playerSpeed;
-        } else if (keyH.leftPressed) {
-            playerX -= playerSpeed;
-        } else if (keyH.rightPressed) {
-            playerX += playerSpeed;
-        }
+        player.update();
     }
 
     /**
-     * Renders the game state to the screen.
-     * Called every frame when delta time accumulates to 1.
+     * Отрисовывает текущее состояние игры на экран.
      *
-     * @param g The Graphics context to render to
+     * @param g графический контекст
      */
-    public void paintComponent(Graphics g) {
+    @Override
+    protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
         Graphics2D g2 = (Graphics2D) g;
-        g2.setColor(Color.white);
-        g2.fillRect(playerX, playerY, tileSize, tileSize);
+        player.draw(g2);
         g2.dispose();
     }
 }

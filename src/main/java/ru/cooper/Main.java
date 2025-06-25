@@ -3,35 +3,31 @@ package ru.cooper;
 import javax.swing.JFrame;
 
 /**
- * Main entry point for the 2D adventure game.
- * Sets up the game window and starts the game thread.
+ * Точка входа в 2D-игру.
+ * Отвечает за создание главного окна, добавление игровой панели и запуск игрового цикла.
  */
 public class Main {
 
     /**
-     * Main method to start the application.
-     * Creates the game window, adds the game panel, and starts the game thread.
+     * Главный метод запуска приложения.
+     * Создаёт окно, инициализирует панель игры и запускает поток игры.
      *
-     * @param args Command line arguments (not used)
+     * @param args аргументы командной строки (не используются)
      */
     public static void main(String[] args) {
 
-        // Create main window
         JFrame window = new JFrame();
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setResizable(false);
         window.setTitle("2D Adventure");
 
-        // Create and add game panel
         GamePanel gamePanel = new GamePanel();
         window.add(gamePanel);
         window.pack();
 
-        // Center window on screen and make visible
-        window.setLocationRelativeTo(null);
+        window.setLocationRelativeTo(null); // Центрирование окна
         window.setVisible(true);
 
-        // Start the game loop
-        gamePanel.startGameThread();
+        gamePanel.startGameThread(); // Запуск игрового потока
     }
 }
