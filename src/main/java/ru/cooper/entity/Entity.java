@@ -27,9 +27,15 @@ public class Entity {
     /** Текущая сторона взгляда персонажа */
     public String direction;
 
-    // ↓↓↓ СПРАЙТЫ ↓↓↓
+    /** Спрайты движения вниз */
     public BufferedImage orc_down_left, orc_down_right, orc_down_stay;
+
+    /** Спрайты движения влево */
     public BufferedImage orc_left_left, orc_left_right;
+
+    /** Спрайты движения вправо */
     public BufferedImage orc_right_left, orc_right_right;
+
+    /** Спрайты движения вверх */
     public BufferedImage orc_up_left, orc_up_right, orc_up_stay;
 }

@@ -1,6 +1,7 @@
 package ru.cooper;
 
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 /**
  * Точка входа в 2D-игру.
@@ -16,18 +17,20 @@ public class Main {
      */
     public static void main(String[] args) {
 
-        JFrame window = new JFrame();
-        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setResizable(false);
-        window.setTitle("2D Adventure");
+        SwingUtilities.invokeLater(() -> {
+            JFrame window = new JFrame();
+            window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            window.setResizable(false);
+            window.setTitle("2D Adventure");
 
-        GamePanel gamePanel = new GamePanel();
-        window.add(gamePanel);
-        window.pack();
+            GamePanel gamePanel = new GamePanel();
+            window.add(gamePanel);
+            window.pack();
 
-        window.setLocationRelativeTo(null); // Центрирование окна
-        window.setVisible(true);
+            window.setLocationRelativeTo(null); // Центрирование окна
+            window.setVisible(true);
 
-        gamePanel.startGameThread(); // Запуск игрового потока
+            gamePanel.startGameThread(); // Запуск игрового потока
+        });
     }
 }

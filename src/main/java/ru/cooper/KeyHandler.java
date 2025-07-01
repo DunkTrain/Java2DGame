@@ -10,16 +10,24 @@ import java.awt.event.KeyListener;
  */
 public class KeyHandler implements KeyListener {
 
-    /** Флаг движения вверх (W) */
+    /**
+     * Флаг движения вверх (W)
+     */
     public boolean upPressed;
 
-    /** Флаг движения вниз (S) */
+    /**
+     * Флаг движения вниз (S)
+     */
     public boolean downPressed;
 
-    /** Флаг движения влево (A) */
+    /**
+     * Флаг движения влево (A)
+     */
     public boolean leftPressed;
 
-    /** Флаг движения вправо (D) */
+    /**
+     * Флаг движения вправо (D)
+     */
     public boolean rightPressed;
 
     /**
@@ -43,10 +51,12 @@ public class KeyHandler implements KeyListener {
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
 
-        if (code == KeyEvent.VK_W) upPressed = true;
-        if (code == KeyEvent.VK_S) downPressed = true;
-        if (code == KeyEvent.VK_A) leftPressed = true;
-        if (code == KeyEvent.VK_D) rightPressed = true;
+        switch (code) {
+            case KeyEvent.VK_W -> upPressed = true;
+            case KeyEvent.VK_S -> downPressed = true;
+            case KeyEvent.VK_A -> leftPressed = true;
+            case KeyEvent.VK_D -> rightPressed = true;
+        }
     }
 
     /**
@@ -59,9 +69,11 @@ public class KeyHandler implements KeyListener {
     public void keyReleased(KeyEvent e) {
         int code = e.getKeyCode();
 
-        if (code == KeyEvent.VK_W) upPressed = false;
-        if (code == KeyEvent.VK_S) downPressed = false;
-        if (code == KeyEvent.VK_A) leftPressed = false;
-        if (code == KeyEvent.VK_D) rightPressed = false;
+        switch (code) {
+            case KeyEvent.VK_W -> upPressed = false;
+            case KeyEvent.VK_S -> downPressed = false;
+            case KeyEvent.VK_A -> leftPressed = false;
+            case KeyEvent.VK_D -> rightPressed = false;
+        }
     }
 }

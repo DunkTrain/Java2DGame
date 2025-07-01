@@ -1,12 +1,14 @@
 package ru.cooper;
 
 import ru.cooper.entity.Player;
+import ru.cooper.tile.TileManager;
 
 import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
 /**
  * Основная панель игры, отвечающая за отрисовку и игровой цикл.
@@ -19,26 +21,30 @@ public class GamePanel extends JPanel implements Runnable {
     private final int originalTileSize = 16;
 
     /** Коэффициент масштабирования тайлов */
-    private final int scale = 3;
+    private final int scale = 5;
 
     /** Размер тайла с учётом масштабирования */
     public final int tileSize = originalTileSize * scale;
 
     /** Количество колонок на экране */
-    private final int maxScreenCol = 16;
+    public final int maxScreenCol = 16;
 
     /** Количество строк на экране */
-    private final int maxScreenRow = 12;
+    public final int maxScreenRow = 12;
 
     /** Общая ширина экрана в пикселях */
-    private final int screenWidth = tileSize * maxScreenCol;
+    public final int screenWidth = tileSize * maxScreenCol;
 
     /** Общая высота экрана в пикселях */
-    private final int screenHeight = tileSize * maxScreenRow;
+    public final int screenHeight = tileSize * maxScreenRow;
 
     /** Целевая частота кадров */
-    private final int fps = 60;
+    private static final int FPS = 60;
 
+    private static final long NANOS_PER_SECOND = 1_000_000_000L;
+    private static final double DRAW_INTERNAL = NANOS_PER_SECOND / (double) FPS;
+
+    TileManager tileManager = new TileManager(this);
     private final KeyHandler keyH = new KeyHandler();
     private final Player player = new Player(this, keyH);
     private Thread gameThread;
@@ -49,7 +55,6 @@ public class GamePanel extends JPanel implements Runnable {
     private long currentTime;
     private long timer = 0;
     private int drawCount = 0;
-    private double drawInterval;
 
     /**
      * Конструктор инициализирует параметры панели:
@@ -69,7 +74,6 @@ public class GamePanel extends JPanel implements Runnable {
     public void startGameThread() {
         gameThread = new Thread(this);
         lastTime = System.nanoTime();
-        drawInterval = 1_000_000_000.0 / fps;
         gameThread.start();
     }
 
@@ -82,7 +86,7 @@ public class GamePanel extends JPanel implements Runnable {
         while (gameThread != null) {
             currentTime = System.nanoTime();
 
-            delta += (currentTime - lastTime) / drawInterval;
+            delta += (currentTime - lastTime) / DRAW_INTERNAL;
             timer += (currentTime - lastTime);
             lastTime = currentTime;
 
@@ -93,7 +97,7 @@ public class GamePanel extends JPanel implements Runnable {
                 drawCount++;
             }
 
-            if (timer >= 1_000_000_000) {
+            if (timer >= NANOS_PER_SECOND) {
                 System.out.println("FPS: " + drawCount);
                 drawCount = 0;
                 timer = 0;
@@ -116,8 +120,14 @@ public class GamePanel extends JPanel implements Runnable {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
         Graphics2D g2 = (Graphics2D) g;
+
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
+        tileManager.draw(g2);
         player.draw(g2);
+
         g2.dispose();
     }
 }
