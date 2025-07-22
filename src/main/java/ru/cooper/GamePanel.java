@@ -38,6 +38,12 @@ public class GamePanel extends JPanel implements Runnable {
     /** Общая высота экрана в пикселях */
     public final int screenHeight = tileSize * maxScreenRow;
 
+    // НАСТРОЙКИ МИРА
+    public final int maxWorldCol = 50;
+    public final int maxWorldRow = 50;
+    public final int worldWidth = tileSize * maxWorldCol;
+    public final int worldHeight = tileSize * maxWorldRow;
+
     /** Целевая частота кадров */
     private static final int FPS = 60;
 
@@ -46,7 +52,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     TileManager tileManager = new TileManager(this);
     private final KeyHandler keyH = new KeyHandler();
-    private final Player player = new Player(this, keyH);
+    public final Player player = new Player(this, keyH);
     private Thread gameThread;
 
     // Переменные цикла игры

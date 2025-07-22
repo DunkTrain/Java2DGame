@@ -10,10 +10,10 @@ import java.awt.image.BufferedImage;
 public class Entity {
 
     /** Положение по оси X (в пикселях) */
-    public int x;
+    public int worldX;
 
     /** Положение по оси Y (в пикселях) */
-    public int y;
+    public int worldY;
 
     /** Скорость перемещения (пикселей за кадр) */
     public int speed;

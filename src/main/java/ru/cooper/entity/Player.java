@@ -25,6 +25,9 @@ public class Player extends Entity {
     /** Обработчик ввода с клавиатуры */
     private final KeyHandler keyH;
 
+    public final int screenX;
+    public final int screenY;
+
     /** Константа для скорости анимации спрайтов */
     private static final int SPRITE_ANIMATION_SPEED = 12;
 
@@ -38,6 +41,9 @@ public class Player extends Entity {
         this.gp = gp;
         this.keyH = keyH;
 
+        screenX = gp.screenWidth / 2 - (gp.tileSize / 2);
+        screenY = gp.screenHeight / 2 - (gp.tileSize / 2);
+
         setDefaultValues();
         getPlayerImage();
     }
@@ -46,8 +52,8 @@ public class Player extends Entity {
      * Устанавливает стартовое положение и скорость игрока.
      */
     public void setDefaultValues() {
-        x = 100;
-        y = 100;
+        worldX = gp.tileSize * 23;
+        worldY = gp.tileSize * 21;
         speed = 4;
         direction = "down";
     }
@@ -96,19 +102,19 @@ public class Player extends Entity {
         boolean moving = false;
 
         if (keyH.upPressed) {
-            y -= speed;
+            worldY -= speed;
             direction = "up";
             moving = true;
         } else if (keyH.downPressed) {
-            y += speed;
+            worldY += speed;
             direction = "down";
             moving = true;
         } else if (keyH.leftPressed) {
-            x -= speed;
+            worldX -= speed;
             direction = "left";
             moving = true;
         } else if (keyH.rightPressed) {
-            x += speed;
+            worldX += speed;
             direction = "right";
             moving = true;
         }
@@ -147,7 +153,6 @@ public class Player extends Entity {
             default -> orc_down_stay; // Спрайт по умолчанию
         };
 
-//        int spriteSize = gp.tileSize * 2;
-        g2.drawImage(image, x, y, gp.tileSize, gp.tileSize, null);
+        g2.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, null);
     }
 }

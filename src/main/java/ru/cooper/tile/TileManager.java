@@ -38,6 +38,15 @@ public class TileManager {
     /** Путь к изображению тайла: вода (граница) */
     private static final String TILE_PATH_WATER = "/tiles/water.png";
 
+    /** Путь к изображению тайла: земля */
+    private static final String TILE_PATH_EARTH = "/tiles/earth.png";
+
+    /** Путь к изображению тайла: песок */
+    private static final String TILE_PATH_SAND = "/tiles/sand.png";
+
+    /** Путь к изображению тайла: дерево */
+    private static final String TILE_PATH_TREE = "/tiles/tree.png";
+
     /**
      * Ссылка на игровую панель
      */
@@ -62,10 +71,11 @@ public class TileManager {
         this.gp = gp;
 
         tile = new Tile[TILE_COUNT];
-        mapTileNum = new int[gp.maxScreenCol][gp.maxScreenRow];
+        mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRow];
 
         getTileImage();
-        loadMap("/maps/durotar.txt");
+//        loadMap("/maps/durotar.txt");
+        loadMap("/maps/world_01.txt");
     }
 
     /**
@@ -84,6 +94,18 @@ public class TileManager {
             tile[2] = new Tile();
             tile[2].image = ImageIO.read(Objects.requireNonNull(
                     getClass().getResourceAsStream(TILE_PATH_WATER)));
+
+            tile[3] = new Tile();
+            tile[3].image = ImageIO.read(Objects.requireNonNull(
+                    getClass().getResourceAsStream(TILE_PATH_EARTH)));
+
+            tile[4] = new Tile();
+            tile[4].image = ImageIO.read(Objects.requireNonNull(
+                    getClass().getResourceAsStream(TILE_PATH_TREE)));
+
+            tile[5] = new Tile();
+            tile[5].image = ImageIO.read(Objects.requireNonNull(
+                    getClass().getResourceAsStream(TILE_PATH_SAND)));
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Ошибка загрузки текстур тайлов", e);
         }
@@ -98,12 +120,12 @@ public class TileManager {
         try (InputStream is = getClass().getResourceAsStream(filePath);
              BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
 
-            for (int row = 0; row < gp.maxScreenRow; row++) {
+            for (int row = 0; row < gp.maxWorldRow; row++) {
                 String line = br.readLine();
                 if (line == null) break;
 
                 String[] numbers = line.split(" ");
-                for (int col = 0; col < gp.maxScreenCol && col < numbers.length; col++) {
+                for (int col = 0; col < gp.maxWorldCol && col < numbers.length; col++) {
                     try {
                         mapTileNum[col][row] = Integer.parseInt(numbers[col].trim());
                     } catch (NumberFormatException e) {
@@ -118,26 +140,48 @@ public class TileManager {
     }
 
     /**
-     * Отрисовывает все тайлы карты на экране.
+     * Отрисовывает только видимые тайлы карты на экране для оптимизации производительности.
      *
      * @param g2 графический контекст для отрисовки
      */
     public void draw(Graphics2D g2) {
-        int x = 0;
-        int y = 0;
+        // Определяем видимую область в мировых координатах
+        int cameraLeftX = gp.player.worldX - gp.player.screenX;
+        int cameraRightX = gp.player.worldX + (gp.screenWidth - gp.player.screenX);
+        int cameraTopY = gp.player.worldY - gp.player.screenY;
+        int cameraBottomY = gp.player.worldY + (gp.screenHeight - gp.player.screenY);
 
-        for (int row = 0; row < gp.maxScreenRow; row++) {
-            for (int col = 0; col < gp.maxScreenCol; col++) {
-                int tileNum = mapTileNum[col][row];
+        // Преобразуем в индексы тайлов с небольшим запасом для плавности
+        int startCol = Math.max(0, cameraLeftX / gp.tileSize);
+        int endCol = Math.min(gp.maxWorldCol - 1, cameraRightX / gp.tileSize + 1);
+        int startRow = Math.max(0, cameraTopY / gp.tileSize);
+        int endRow = Math.min(gp.maxWorldRow - 1, cameraBottomY / gp.tileSize + 1);
 
-                if (tileNum >= 0 && tileNum < tile.length && tile[tileNum] != null) {
-                    g2.drawImage(tile[tileNum].image, x, y, gp.tileSize, gp.tileSize, null);
+        // Отрисовываем только видимые тайлы
+        for (int worldRow = startRow; worldRow <= endRow; worldRow++) {
+            for (int worldCol = startCol; worldCol <= endCol; worldCol++) {
+                int tileNum = mapTileNum[worldCol][worldRow];
+
+                // Пропускаем, если тайл не существует
+                if (tileNum < 0 || tileNum >= tile.length || tile[tileNum] == null) {
+                    continue;
                 }
 
-                x += gp.tileSize;
+                // Мировые координаты тайла
+                int worldX = worldCol * gp.tileSize;
+                int worldY = worldRow * gp.tileSize;
+
+                // Преобразуем в экранные координаты
+                int screenX = worldX - gp.player.worldX + gp.player.screenX;
+                int screenY = worldY - gp.player.worldY + gp.player.screenY;
+
+                // Дополнительная проверка видимости (на случай неточностей в расчетах)
+                if (screenX + gp.tileSize >= 0 && screenX <= gp.screenWidth &&
+                        screenY + gp.tileSize >= 0 && screenY <= gp.screenHeight) {
+
+                    g2.drawImage(tile[tileNum].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
+                }
             }
-            x = 0;
-            y += gp.tileSize;
         }
     }
 }
